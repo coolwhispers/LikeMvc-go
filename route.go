@@ -7,7 +7,7 @@ import (
 //AddRoutes :
 func AddRoutes(s string, c MvcControllerInterface) {
 	rt := route{c: c}
-	http.HandleFunc(s, rt.run)
+	customRouter[s] = rt.run
 }
 
 type route struct {
