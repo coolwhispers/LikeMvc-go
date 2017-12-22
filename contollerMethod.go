@@ -3,40 +3,40 @@ package LikeMvc
 import "net/http"
 
 //Get :
-func (c *MvcController) Get() {
+func (c *Controller) Get() {
 	c.methodNotAllowed()
 }
 
 // Post :
-func (c *MvcController) Post() {
+func (c *Controller) Post() {
 	c.methodNotAllowed()
 }
 
 // Put :
-func (c *MvcController) Put() {
+func (c *Controller) Put() {
 	c.methodNotAllowed()
 }
 
 // Delete :
-func (c *MvcController) Delete() {
+func (c *Controller) Delete() {
 	c.methodNotAllowed()
 }
 
 // Head :
-func (c *MvcController) Head() {
+func (c *Controller) Head() {
 	c.methodNotAllowed()
 }
 
 // Patch :
-func (c *MvcController) Patch() {
+func (c *Controller) Patch() {
 	c.methodNotAllowed()
 }
 
 // Options :
-func (c *MvcController) Options() {
+func (c *Controller) Options() {
 	c.methodNotAllowed()
 }
 
-func (c *MvcController) methodNotAllowed() {
+func (c *Controller) methodNotAllowed() {
 	http.Error(*c.ResponseWriter, "Method Not Allowed", 405)
 }

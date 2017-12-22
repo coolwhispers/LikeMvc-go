@@ -5,13 +5,13 @@ import (
 )
 
 //AddRoutes :
-func AddRoutes(s string, c MvcControllerInterface) {
+func AddRoutes(s string, c IController) {
 	rt := route{c: c}
 	customRouter[s] = rt.run
 }
 
 type route struct {
-	c MvcControllerInterface
+	c IController
 }
 
 func (rt *route) run(w http.ResponseWriter, r *http.Request) {
