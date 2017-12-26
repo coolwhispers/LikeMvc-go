@@ -3,12 +3,21 @@ package LikeMvc
 import (
 	"log"
 	"net/http"
+	"os"
 )
 
 var customRouter map[string]func(w http.ResponseWriter, r *http.Request)
 
 //Run : Start Web Server
 func Run() {
+	folders := []string{"conf", "controllers", "models", "static", "utils", "views"}
+
+	for _, path := range folders {
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			os.Mkdir(path, os.ModePerm)
+		}
+	}
+
 	for k, v := range customRouter {
 		http.HandleFunc(k, v)
 	}
