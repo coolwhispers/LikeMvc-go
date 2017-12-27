@@ -2,6 +2,7 @@ package LikeMvc
 
 import (
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -25,6 +26,7 @@ type Controller struct {
 
 //New for Route
 func (c *Controller) new(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.Method, r.Header, *r)
 	c.ResponseWriter = &w
 	c.Request = r
 }

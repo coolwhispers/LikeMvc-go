@@ -6,6 +6,9 @@ import (
 
 //AddRoutes :
 func AddRoutes(s string, c IController) {
+	if customRouter == nil {
+		customRouter = make(map[string]func(w http.ResponseWriter, r *http.Request))
+	}
 	rt := route{c: c}
 	customRouter[s] = rt.run
 }
