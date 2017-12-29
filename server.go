@@ -8,8 +8,13 @@ import (
 
 var customRouter map[string]func(w http.ResponseWriter, r *http.Request)
 
-//Run : Start Web Server
-func Run() {
+var srv *http.Server
+
+//Start Web Server
+func Start() *http.Server {
+
+	srv = &http.Server{Addr: ":8080"}
+
 	folders := []string{"conf", "controllers", "models", "static", "utils", "views"}
 
 	for _, path := range folders {
@@ -28,9 +33,19 @@ func Run() {
 		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("./static"))))
 	}
 
-	log.Println("Server Start")
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatalln(err)
+	if err := srv.ListenAndServe(); err != nil {
+		// cannot panic, because this probably is an intentional close
+		log.Printf("Httpserver: ListenAndServe() error: %s", err)
+	} else {
+		log.Println("Server Start")
+	}
+
+	return srv
+}
+
+//Stop Web Server
+func Stop() {
+	if err := srv.Shutdown(nil); err != nil {
+		panic(err)
 	}
 }

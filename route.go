@@ -2,37 +2,67 @@ package LikeMvc
 
 import (
 	"net/http"
+	"reflect"
 )
 
 //AddRoutes :
-func AddRoutes(s string, c IController) {
+func AddRoutes(s string, controllerType reflect.Type) {
+	if _, ok := controllerType.(IController); !ok {
+		panic("not a controller")
+	}
+
 	if customRouter == nil {
 		customRouter = make(map[string]func(w http.ResponseWriter, r *http.Request))
 	}
-	rt := route{c: c}
+	rt := route{controllerType}
 	customRouter[s] = rt.run
 }
 
 type route struct {
-	c IController
+	controllerType reflect.Type
 }
 
 func (rt *route) run(w http.ResponseWriter, r *http.Request) {
-	rt.c.new(w, r)
+	c := reflect.New(rt.controllerType).Elem().Interface().(IController)
+	defer func() {
+		if err := recover(); err != nil {
+			c.OnException(err)
+		}
+	}()
+
+	c.actionInvoker(w, r)
+
+	c.BeginExecute()
+	if !c.OnAuthentication() {
+
+	}
+
+	if !c.OnAuthorization() {
+
+	}
+
+	c.OnActionExecuting()
+
 	switch r.Method {
 	case "GET":
-		rt.c.Get()
+		c.Get()
 	case "POST":
-		rt.c.Post()
+		c.Post()
 	case "PUT":
-		rt.c.Put()
+		c.Put()
 	case "DELETE":
-		rt.c.Delete()
+		c.Delete()
 	case "HEAD":
-		rt.c.Head()
+		c.Head()
 	case "PATCH":
-		rt.c.Patch()
+		c.Patch()
 	case "OPTIONS":
-		rt.c.Options()
+		c.Options()
 	}
+	c.OnActionExecuted()
+
+	c.EndExecute()
+
+	c.OnResultExecuting()
+	c.OnResultExecuted()
 }
