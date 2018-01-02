@@ -1,4 +1,4 @@
-package LikeMvc
+package dotMvc
 
 import (
 	"html/template"
@@ -47,27 +47,42 @@ func (c *Controller) View(viewName string, model interface{}) {
 	t.Execute(*c.ResponseWriter, model)
 }
 
+//BeginExecute :
 func (c *Controller) BeginExecute() {
 
 }
+
+//OnAuthentication :
 func (c *Controller) OnAuthentication() bool {
 	return true
 }
+
+//OnAuthorization :
 func (c *Controller) OnAuthorization() bool {
 	return true
 }
+
+//OnActionExecuting :
 func (c *Controller) OnActionExecuting() {
 
 }
+
+//OnActionExecuted :
 func (c *Controller) OnActionExecuted() {
 
 }
+
+//OnResultExecuting :
 func (c *Controller) OnResultExecuting() {
 
 }
+
+//OnResultExecuted :
 func (c *Controller) OnResultExecuted() {
 
 }
+
+//OnException :
 func (c *Controller) OnException(err interface{}) {
 
 }

@@ -1,12 +1,21 @@
-package LikeMvc
+package dotMvc
 
 import (
 	"net/http"
 	"reflect"
+
+	"github.com/gorilla/mux"
 )
+
+var muxRouter *mux.Router
+
+func init() {
+	muxRouter = mux.NewRouter()
+}
 
 //AddRoutes :
 func AddRoutes(s string, controllerType reflect.Type) {
+
 	if _, ok := controllerType.(IController); !ok {
 		panic("not a controller")
 	}
@@ -14,15 +23,15 @@ func AddRoutes(s string, controllerType reflect.Type) {
 	if customRouter == nil {
 		customRouter = make(map[string]func(w http.ResponseWriter, r *http.Request))
 	}
-	rt := route{controllerType}
+	rt := routeTemplate{controllerType}
 	customRouter[s] = rt.run
 }
 
-type route struct {
+type routeTemplate struct {
 	controllerType reflect.Type
 }
 
-func (rt *route) run(w http.ResponseWriter, r *http.Request) {
+func (rt *routeTemplate) run(w http.ResponseWriter, r *http.Request) {
 	c := reflect.New(rt.controllerType).Elem().Interface().(IController)
 	defer func() {
 		if err := recover(); err != nil {

@@ -1,4 +1,4 @@
-package LikeMvc
+package dotMvc
 
 import (
 	"log"
