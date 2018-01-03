@@ -50,8 +50,9 @@ func (c *Controller) View(viewName string, model interface{}) IActionResult {
 	return ActionResult{}
 }
 
-func (c *Controller) HttpNotFound() IActionResult {
-	http.Error(w, httpStatusCode[404], 404)
+//HTTPNotFound :
+func (c *Controller) HTTPNotFound() IActionResult {
+	http.Error(*c.ResponseWriter, httpStatusCode[404], 404)
 	return ActionResult{}
 }
 
