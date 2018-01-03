@@ -1,42 +1,36 @@
 package dotMvc
 
-import "net/http"
-
 //Get :
-func (c *Controller) Get() {
-	c.methodNotAllowed()
+func (c *Controller) Get() IActionResult {
+	return methodNotAllowed(c.ResponseWriter)
 }
 
 // Post :
-func (c *Controller) Post() {
-	c.methodNotAllowed()
+func (c *Controller) Post() IActionResult {
+	return methodNotAllowed(c.ResponseWriter)
 }
 
 // Put :
-func (c *Controller) Put() {
-	c.methodNotAllowed()
+func (c *Controller) Put() IActionResult {
+	return methodNotAllowed(c.ResponseWriter)
 }
 
 // Delete :
-func (c *Controller) Delete() {
-	c.methodNotAllowed()
+func (c *Controller) Delete() IActionResult {
+	return methodNotAllowed(c.ResponseWriter)
 }
 
 // Head :
-func (c *Controller) Head() {
-	c.methodNotAllowed()
+func (c *Controller) Head() IActionResult {
+	return methodNotAllowed(c.ResponseWriter)
 }
 
 // Patch :
-func (c *Controller) Patch() {
-	c.methodNotAllowed()
+func (c *Controller) Patch() IActionResult {
+	return methodNotAllowed(c.ResponseWriter)
 }
 
 // Options :
-func (c *Controller) Options() {
-	c.methodNotAllowed()
-}
-
-func (c *Controller) methodNotAllowed() {
-	http.Error(*c.ResponseWriter, "Method Not Allowed", 405)
+func (c *Controller) Options() IActionResult {
+	return methodNotAllowed(c.ResponseWriter)
 }

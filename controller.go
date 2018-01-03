@@ -8,7 +8,7 @@ import (
 
 //IController :
 type IController interface {
-	actionInvoker(w http.ResponseWriter, r *http.Request)
+	actionInvoker(w http.ResponseWriter, r *http.Request, vars map[string]string)
 	BeginExecute()
 	OnAuthentication() bool
 	OnAuthorization() bool
@@ -18,13 +18,13 @@ type IController interface {
 	OnResultExecuted()
 	OnException(err interface{})
 	EndExecute()
-	Get()
-	Post()
-	Put()
-	Delete()
-	Head()
-	Patch()
-	Options()
+	Get() IActionResult
+	Post() IActionResult
+	Put() IActionResult
+	Delete() IActionResult
+	Head() IActionResult
+	Patch() IActionResult
+	Options() IActionResult
 }
 
 //Controller :
@@ -32,19 +32,27 @@ type Controller struct {
 	IController
 	ResponseWriter *http.ResponseWriter
 	Request        *http.Request
+	Vars           map[string]string
 }
 
 //New for Route
-func (c *Controller) actionInvoker(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) actionInvoker(w http.ResponseWriter, r *http.Request, vars map[string]string) {
 	log.Println(r.Method, r.Header, *r)
+	c.Vars = vars
 	c.ResponseWriter = &w
 	c.Request = r
 }
 
 //View :
-func (c *Controller) View(viewName string, model interface{}) {
+func (c *Controller) View(viewName string, model interface{}) IActionResult {
 	t, _ := template.ParseFiles("views/" + viewName + ".html") // 讀取 HTML 檔案
 	t.Execute(*c.ResponseWriter, model)
+	return ActionResult{}
+}
+
+func (c *Controller) HttpNotFound() IActionResult {
+	http.Error(w, httpStatusCode[404], 404)
+	return ActionResult{}
 }
 
 //BeginExecute :

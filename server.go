@@ -13,8 +13,6 @@ var srv *http.Server
 //Start Web Server
 func Start() *http.Server {
 
-	srv = &http.Server{Addr: ":8080"}
-
 	folders := []string{"conf", "controllers", "models", "static", "utils", "views"}
 
 	for _, path := range folders {
@@ -24,14 +22,16 @@ func Start() *http.Server {
 	}
 
 	for k, v := range customRouter {
-		http.HandleFunc(k, v)
+		muxRouter.HandleFunc(k, v)
 	}
 
 	if _, ok := customRouter["/"]; ok {
-		http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+		muxRouter.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 	} else {
-		http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("./static"))))
+		muxRouter.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("./static"))))
 	}
+
+	srv = &http.Server{Addr: ":8080", Handler: muxRouter}
 
 	if err := srv.ListenAndServe(); err != nil {
 		// cannot panic, because this probably is an intentional close

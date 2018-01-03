@@ -17,7 +17,7 @@ func init() {
 func AddRoutes(s string, controllerType reflect.Type) {
 
 	if _, ok := controllerType.(IController); !ok {
-		panic("not a controller")
+		panic("Not dotMvc controller")
 	}
 
 	if customRouter == nil {
@@ -31,15 +31,35 @@ type routeTemplate struct {
 	controllerType reflect.Type
 }
 
+func resultAction(actionResult *IActionResult) {
+
+}
+
+var (
+	httpStatusCode = map[int]string{
+		403: "403 Forbidden",
+		404: "404 Not Found",
+		405: "405 Method Not Allowed",
+		500: "500 Internal Server Error",
+	}
+)
+
 func (rt *routeTemplate) run(w http.ResponseWriter, r *http.Request) {
+	// allow cross domain AJAX requests
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers",
+		"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 	c := reflect.New(rt.controllerType).Elem().Interface().(IController)
 	defer func() {
 		if err := recover(); err != nil {
 			c.OnException(err)
 		}
+
+		http.Error(w, httpStatusCode[500], 500)
 	}()
 
-	c.actionInvoker(w, r)
+	vars := mux.Vars(r)
+	c.actionInvoker(w, r, vars)
 
 	c.BeginExecute()
 	if !c.OnAuthentication() {
@@ -52,26 +72,39 @@ func (rt *routeTemplate) run(w http.ResponseWriter, r *http.Request) {
 
 	c.OnActionExecuting()
 
+	var actionResult IActionResult
+
 	switch r.Method {
 	case "GET":
-		c.Get()
+		actionResult = c.Get()
 	case "POST":
-		c.Post()
+		actionResult = c.Post()
 	case "PUT":
-		c.Put()
+		actionResult = c.Put()
 	case "DELETE":
-		c.Delete()
+		actionResult = c.Delete()
 	case "HEAD":
-		c.Head()
+		actionResult = c.Head()
 	case "PATCH":
-		c.Patch()
+		actionResult = c.Patch()
 	case "OPTIONS":
-		c.Options()
+		actionResult = c.Options()
+	default:
+		actionResult = methodNotAllowed(&w)
 	}
+
 	c.OnActionExecuted()
 
 	c.EndExecute()
 
 	c.OnResultExecuting()
+
+	resultAction(&actionResult)
+
 	c.OnResultExecuted()
+}
+
+func methodNotAllowed(w *http.ResponseWriter) IActionResult {
+	http.Error(*w, httpStatusCode[405], 405)
+	return ActionResult{}
 }
