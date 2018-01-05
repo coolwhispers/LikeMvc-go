@@ -45,8 +45,28 @@ func (c *Controller) actionInvoker(w http.ResponseWriter, r *http.Request, vars 
 
 //View :
 func (c *Controller) View(viewName string, model interface{}) IActionResult {
-	t, _ := template.ParseFiles("views/" + viewName + ".html") // 讀取 HTML 檔案
+	t, err := template.ParseFiles("views/" + viewName + ".html") // 讀取 HTML 檔案
+	if err != nil {
+		panic(err)
+	}
+
 	t.Execute(*c.ResponseWriter, model)
+	return ActionResult{}
+}
+
+//ReturnCode :
+func (c *Controller) ReturnCode(code int) IActionResult {
+	word, ok := httpStatusCode[code]
+	if !ok {
+		panic("Not exist status code.")
+	}
+	http.Error(*c.ResponseWriter, word, code)
+	return ActionResult{}
+}
+
+//ReturnMessage :
+func (c *Controller) ReturnMessage(code int, message string) IActionResult {
+	http.Error(*c.ResponseWriter, message, code)
 	return ActionResult{}
 }
 
