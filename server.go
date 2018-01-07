@@ -3,35 +3,24 @@ package dotMvc
 import (
 	"log"
 	"net/http"
-	"os"
+
+	"github.com/gorilla/mux"
 )
 
-var customRouter map[string]func(w http.ResponseWriter, r *http.Request)
+var servers = make(map[string]*Server)
 
-var srv *http.Server
+//Server : HTTP Server
+type Server struct {
+	s *http.Server
+}
 
-//Start Web Server
-func Start() *http.Server {
-
-	folders := []string{"conf", "controllers", "models", "static", "utils", "views"}
-
-	for _, path := range folders {
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			os.Mkdir(path, os.ModePerm)
-		}
+//Run :
+func Run(addr string, r *mux.Router) *Server {
+	if _, ok := servers[addr]; ok {
+		panic("addr is exist")
 	}
 
-	for k, v := range customRouter {
-		muxRouter.HandleFunc(k, v)
-	}
-
-	if _, ok := customRouter["/"]; ok {
-		muxRouter.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
-	} else {
-		muxRouter.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("./static"))))
-	}
-
-	srv = &http.Server{Addr: ":8080", Handler: muxRouter}
+	srv := &http.Server{Addr: addr, Handler: r}
 
 	if err := srv.ListenAndServe(); err != nil {
 		// cannot panic, because this probably is an intentional close
@@ -40,12 +29,13 @@ func Start() *http.Server {
 		log.Println("Server Start")
 	}
 
-	return srv
-}
+	// if _, ok := customRouter["/"]; ok {
+	// 	muxRouter.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+	// } else {
+	// 	muxRouter.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("./static"))))
+	// }
 
-//Stop Web Server
-func Stop() {
-	if err := srv.Shutdown(nil); err != nil {
-		panic(err)
-	}
+	servers[addr] = &Server{srv}
+
+	return servers[addr]
 }
